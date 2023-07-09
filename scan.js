@@ -9,15 +9,15 @@ module.exports = function scanLyrics() {
   });
   console.log(lyricsPath, config);
   const lyrics = fs.readdirSync(lyricsPath).map((_path) => {
-    const [song, suffix] = _path.split(".");
+    const [song, suffix] = _path.split(".lri");
     const [singer, title] = song.split(" - ");
     // console.log(_path);
     return {
       title: (title ?? "").trim(),
       singer: (singer ?? "").trim(),
-      path: path.join(__dirname, _path),
+      path: path.join(__dirname, config.lyricsPath, _path),
     };
   });
 
-  fs.writeFileSync("lyrics-cache.json", JSON.stringify(lyrics));
+  fs.writeFileSync(config.lyricsCacheFileName, JSON.stringify(lyrics));
 };

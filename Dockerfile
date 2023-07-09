@@ -8,4 +8,6 @@ RUN npm install
 
 EXPOSE 8080
 
-CMD [ "npx","ts-node","app.ts" ]
+VOLUME [ "/lyrics" ]
+# CMD [ "npx","ts-node","app.ts" ]
+CMD ["npm","run","start"]

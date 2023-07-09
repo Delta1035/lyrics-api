@@ -27,26 +27,37 @@ async function searchlyrics(id) {
   }
 }
 
-async function searchLocal({ title, singer }) {
-  lyricsCache = JSON.parse(
-    fs.readFileSync(path.join(__dirname, config.lyricsCacheFileName), {
+function searchLocal({ title, singer }) {
+  lyricsCache = fs.readFileSync(
+    path.join(__dirname, config.lyricsCacheFileName),
+    {
       encoding: "utf8",
-    })
+    }
   );
   // console.log("lyricsCache :>>", lyricsCache);
-  const songList = lyricsCache.filter((song) => {
+  const lyricsList = JSON.parse(lyricsCache);
+  const songList = lyricsList.filter((song) => {
     return (
       (song.title ?? "").indexOf(title) !== -1 ||
       (title ?? "").indexOf(song.title) !== -1
     );
   });
-  const result = songList.filter((song) => {
-    return (
-      (song.singer ?? "").indexOf(singer) !== -1 ||
-      (singer ?? "").indexOf(song.singer) !== -1
-    );
-  });
-
+  let result;
+  if ((singer ?? "").trim() === "") {
+    result = songList;
+  } else {
+    result = songList.filter((song) => {
+      return (
+        (song.singer ?? "").indexOf(singer) !== -1 ||
+        (singer ?? "").indexOf(song.singer) !== -1
+      );
+    });
+  }
+  // console.log("path :>>>>>>>>>>>>>>>>>>>>>", result, result[0].path);
+  // const lyrics = fs.readFileSync(result[0].path, {
+  //   encoding: "utf-8",
+  // });
+  // console.log("lyrics :>>>>>>>>>>>>>>>>>>>>>>>>>>>", lyrics);
   return result;
 }
 
@@ -73,48 +84,47 @@ app.get("/lyrics", async (req, res) => {
   try {
     const { title, artist, album } = req.query;
     const result = searchLocal({ title, singer: artist });
+    console.log(result);
     if (result.length > 0) {
-      const lyrics = JSON.parse(
-        fs.readFileSync(path.join(__dirname, result[0].path), {
-          encoding: "utf8",
-        })
-      );
-      console.log("lyrics :>> ", lyrics);
+      console.log("path", result[0].path);
+      const lyrics = fs.readFileSync(result[0].path, "utf8");
+      console.log("local-lyrics :>> ", lyrics);
       res.json(lyrics);
-      return;
-    }
-    const r = await search(title);
-    const songList = r.data.song.itemlist;
-    console.log(r, songList);
-    let song;
-    if (artist) {
-      song = songList.find((song) => {
-        return song.singer.indexOf(artist) !== -1;
-      });
-      if (!song) {
+    } else {
+      const r = await search(title);
+      const songList = r.data.song.itemlist;
+      // console.log(r, songList);
+      let song;
+      if (artist) {
+        song = songList.find((song) => {
+          return song.singer.indexOf(artist) !== -1;
+        });
+        if (!song) {
+          song = songList[0];
+        }
+      } else {
         song = songList[0];
       }
-    } else {
-      song = songList[0];
-    }
-    console.log(song);
-    const lyrics = await searchlyrics(song.id);
-    // res.json({
-    //   title,
-    //   artist,
-    //   album,
-    //   song,
-    //   songList,
-    //   lyrics,
-    // });
-    console.log(lyrics);
+      // console.log(song);
+      const lyrics = await searchlyrics(song.id);
+      // res.json({
+      //   title,
+      //   artist,
+      //   album,
+      //   song,
+      //   songList,
+      //   lyrics,
+      // });
+      console.log("qqlyrics", lyrics);
 
-    if (lyrics) {
-      res.json(lyrics.lyric);
-    } else {
-      res.status(404);
+      if (lyrics) {
+        res.json(lyrics.lyric);
+      } else {
+        res.status(404);
+      }
     }
   } catch (error) {
+    console.log(error);
     res.json(error);
   }
 });
