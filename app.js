@@ -34,7 +34,6 @@ function searchLocal({ title, singer }) {
       encoding: "utf8",
     }
   );
-  // console.log("lyricsCache :>>", lyricsCache);
   const lyricsList = JSON.parse(lyricsCache);
   const songList = lyricsList.filter((song) => {
     return (
@@ -53,11 +52,6 @@ function searchLocal({ title, singer }) {
       );
     });
   }
-  // console.log("path :>>>>>>>>>>>>>>>>>>>>>", result, result[0].path);
-  // const lyrics = fs.readFileSync(result[0].path, {
-  //   encoding: "utf-8",
-  // });
-  // console.log("lyrics :>>>>>>>>>>>>>>>>>>>>>>>>>>>", lyrics);
   return result;
 }
 
@@ -72,7 +66,6 @@ async function search(keyword) {
 
     return result.data;
   } catch (error) {
-    console.log("error :>> ", error);
     return error;
   }
 }
@@ -84,16 +77,12 @@ app.get("/lyrics", async (req, res) => {
   try {
     const { title, artist, album } = req.query;
     const result = searchLocal({ title, singer: artist });
-    console.log(result);
     if (result.length > 0) {
-      console.log("path", result[0].path);
       const lyrics = fs.readFileSync(result[0].path, "utf8");
-      console.log("local-lyrics :>> ", lyrics);
       res.json(lyrics);
     } else {
       const r = await search(title);
       const songList = r.data.song.itemlist;
-      // console.log(r, songList);
       let song;
       if (artist) {
         song = songList.find((song) => {
@@ -105,7 +94,6 @@ app.get("/lyrics", async (req, res) => {
       } else {
         song = songList[0];
       }
-      // console.log(song);
       const lyrics = await searchlyrics(song.id);
       // res.json({
       //   title,
@@ -115,8 +103,6 @@ app.get("/lyrics", async (req, res) => {
       //   songList,
       //   lyrics,
       // });
-      console.log("qqlyrics", lyrics);
-
       if (lyrics) {
         res.json(lyrics.lyric);
       } else {

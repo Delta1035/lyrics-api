@@ -3,15 +3,10 @@ const config = require("./config");
 const fs = require("fs");
 module.exports = function scanLyrics() {
   const lyricsPath = path.join(__dirname, config.lyricsPath);
-  fs.stat(lyricsPath, (err, stats) => {
-    // console.log(stats.isDirectory());
-    // console.log(stats);
-  });
-  console.log(lyricsPath, config);
+  fs.stat(lyricsPath, (err, stats) => {});
   const lyrics = fs.readdirSync(lyricsPath).map((_path) => {
     const [song, suffix] = _path.split(".lri");
     const [singer, title] = song.split(" - ");
-    // console.log(_path);
     return {
       title: (title ?? "").trim(),
       singer: (singer ?? "").trim(),
