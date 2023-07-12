@@ -25,6 +25,9 @@ function readFilesWithLriExtension(directoryPath) {
     }
   });
 }
-const lyricsPath = path.join(__dirname, config.lyricsPath);
-readFilesWithLriExtension(lyricsPath);
-fs.writeFileSync(config.lyricsCacheFileName, JSON.stringify(lyrics));
+
+module.exports = function scanLyrics() {
+  const lyricsPath = path.join(__dirname, config.lyricsPath);
+  readFilesWithLriExtension(lyricsPath);
+  fs.writeFileSync(config.lyricsCacheFileName, JSON.stringify(lyrics));
+};
