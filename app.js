@@ -81,34 +81,29 @@ app.get("/lyrics", async (req, res) => {
       const lyrics = fs.readFileSync(result[0].path, "utf8");
       res.json(lyrics);
     } else {
-      const r = await search(title);
-      const songList = r.data.song.itemlist;
-      let song;
-      if (artist) {
-        song = songList.find((song) => {
-          return song.singer.indexOf(artist) !== -1;
-        });
-        if (!song) {
-          song = songList[0];
-        }
-      } else {
-        song = songList[0];
-      }
-      const lyrics = await searchlyrics(song.id);
-      // res.json({
-      //   title,
-      //   artist,
-      //   album,
-      //   song,
-      //   songList,
-      //   lyrics,
-      // });
-      if (lyrics) {
-        res.json(lyrics.lyric);
-      } else {
-        res.status(404);
-      }
+      res.json("骚瑞,没在你本地找到歌词呀!");
     }
+    // else {
+    //   const r = await search(title);
+    //   const songList = r.data.song.itemlist;
+    //   let song;
+    //   if (artist) {
+    //     song = songList.find((song) => {
+    //       return song.singer.indexOf(artist) !== -1;
+    //     });
+    //     if (!song) {
+    //       song = songList[0];
+    //     }
+    //   } else {
+    //     song = songList[0];
+    //   }
+    //   const lyrics = await searchlyrics(song.id);
+    //   if (lyrics) {
+    //     res.json(lyrics.lyric);
+    //   } else {
+    //     res.status(404);
+    //   }
+    // }
   } catch (error) {
     console.log(error);
     res.json(error);
